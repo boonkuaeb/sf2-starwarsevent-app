@@ -8,6 +8,15 @@ class DefaultController extends Controller
 {
     public function indexAction()
     {
-        return $this->render('EventBundle:Default:index.html.twig');
+        $em = $this->getDoctrine()->getManager();
+        $repo = $em->getRepository("EventBundle:Event");
+
+        $event = $repo->findOneBy(
+            array(
+                'id'=>1
+            )
+        );
+
+        return $this->render('EventBundle:Default:index.html.twig',array('name'=>'Yoda', 'count'=>4, 'event'=>$event));
     }
 }

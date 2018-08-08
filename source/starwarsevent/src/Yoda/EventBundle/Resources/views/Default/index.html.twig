@@ -3,5 +3,16 @@
 {% block title %} Starwars Event !!!!! {% endblock %}
 
 {% block body %}
-    Hello World!
+    Hello World! {{ name }}
+    <ul>
+        {% for i in 1..count %}
+            <li>{{ i }}#</li>
+        {% endfor %}
+    </ul>
+
+    <h2>Event Details</h2>
+    {{ event.name }}
+    {{ event.location }}
+    {#{{ event.time }}#}
+    {{ event.details }}
 {% endblock %}
