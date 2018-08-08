@@ -1,0 +1,74 @@
+version: '2'
+services:
+    ##
+    # Autodiscovery : Consul
+    ##
+    autodiscovery_starwarsevent:
+        build: ./autodiscovery/
+        mem_limit: 128m
+        expose:
+            - 53
+            - 8300
+            - 8301
+            - 8302
+            - 8400
+            - 8500
+        ports:
+            - 8500:8500
+        dns:
+            - 127.0.0.1
+
+    ##
+    # StarwareSevent Service
+    ##
+    service_starwarsevent_fpm:
+        build: services/starwarsevent/php-fpm/
+        volumes_from:
+            - source_starwarsevent
+        links:
+            - autodiscovery_starwarsevent
+            - service_starwarsevent_database
+        expose:
+            - 9000
+        environment:
+            - BACKEND=service-starwarsevent-nginx
+            - CONSUL=autodiscovery_starwarsevent
+        volumes:
+            - ./services/log/php-fpm:/var/log
+
+    service_starwarsevent_nginx:
+        build: services/starwarsevent/nginx/
+        volumes_from:
+            - source_starwarsevent
+        links:
+            - autodiscovery_starwarsevent
+            - service_starwarsevent_fpm
+        environment:
+            - BACKEND=service-starwarsevent-fpm
+            - CONSUL=autodiscovery_starwarsevent
+        ports:
+            - 8081:80
+            - 9091:9090
+        volumes:
+            - ./services/log/nginx:/var/log/nginx
+
+    service_starwarsevent_database:
+        build: ./services/starwarsevent/database/
+        environment:
+            - CONSUL=autodiscovery_starwarsevent
+            - MYSQL_ROOT_PASSWORD=mysecret
+            - MYSQL_DATABASE=starwarsevent_db
+            - MYSQL_USER=starwarsevent
+            - MYSQL_PASSWORD=mysecret
+        ports:
+            - 6666:3306
+
+
+    ##
+    # Source containers
+    ##
+    source_starwarsevent:
+        image: nginx:stable
+        volumes:
+            - ../source/starwarsevent:/var/www/html
+        command: "true"

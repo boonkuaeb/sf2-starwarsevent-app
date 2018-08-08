@@ -1,0 +1,11 @@
+
+composer create-project symfony/framework-standard-edition starwarsevent "2.8.*"
+
+docker-compose up -d --no-deps --build service_starwarsevent_nginx
+
+docker-compose up -d --no-deps --build service_starwarsevent_php-fpm
+
+
+
+Installing '/usr/local/lib/php/extensions/no-debug-non-zts-20160303/xdebug.so'
+You should add "zend_extension=/usr/local/lib/php/extensions/no-debug-non-zts-20160303/xdebug.so" to php.ini
